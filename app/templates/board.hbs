@@ -1,0 +1,15 @@
+<table>
+	<tbody>
+		{{#each map.rows as |row|}}
+		<tr>
+			{{#each row.cells as |cell|}}
+				<td>
+					<button class="square unknown"i {{action 'check'}}>
+						{{cell.text}}
+					</button>
+				</td>
+			{{/each}}
+		</tr>
+		{{/each}}
+	</tbody>
+</table>
