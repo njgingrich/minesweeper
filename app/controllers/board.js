@@ -27,14 +27,32 @@ export default Ember.Controller.extend({
 
 var buildMapRows = function(width, height) {
 	var rows = [];
-	for (var r = 0; r < height; r++) {
+	for (let r = 0; r < height; r++) {
 		var cells = [];
-		for (var c = 0; c < width; c++) {
-			var cell = Cell.create();
+		for (let c = 0; c < width; c++) {
+			let cell = Cell.create();
 			cells.push(cell);
 		}
 		var row = MapRow.create({cells: cells});
 		rows.push(row);
 	}
+
+	for (let r = 0; r < height; r++) {
+		for (let c = 0; c < width; c++) {
+			let cell = rows[r].cells[c];
+			for (let i = r-1; i <= r+1; i++) {
+				for (let j = c-1; j <= c+1; i++) {
+					if (between(i, 0, height) && 
+						between(j, 0, width)) {
+						cell.neighbors.push(rows[i].cells[j]);
+					}
+				}
+			}
+		}
+	}
 	return rows;
+};
+
+var between = function(val, min, max) {
+	return (val <= max && val >= min);
 };
