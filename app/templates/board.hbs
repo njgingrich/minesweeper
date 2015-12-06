@@ -4,7 +4,7 @@
 		<tr>
 			{{#each row.cells as |cell|}}
 				<td>
-					<button class="square unknown" {{action 'check'}}>
+					<button class="square unknown" {{action 'check' cell}}>
 						{{cell.text}}
 					</button>
 				</td>

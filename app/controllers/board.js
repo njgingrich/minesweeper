@@ -30,33 +30,33 @@ var buildMapRows = function(width, height) {
 	for (let r = 0; r < height; r++) {
 		var cells = [];
 		for (let c = 0; c < width; c++) {
-			let cell = Cell.create();
+			let cell = Cell.create({
+				neighbors: []
+			});
 			cells.push(cell);
 		}
 		var row = MapRow.create({cells: cells});
 		rows.push(row);
 	}
 
-	for (let r = 0; r < height; r++) {
-		for (let c = 0; c < width; c++) {
-			let cell = rows[r].cells[c];
+	return setNeighbors(rows, width, height);
+};
 
+var setNeighbors = function(rows, width, height) {
+	for (let r = 0; r < height; r++) {
+		for (let c = 0; c < width; c++) { 
+			let cell = rows[r].cells[c];
 			// I hate myself
 			for (let i = r-1; i <= r+1; i++) {
 				for (let j = c-1; j <= c+1; j++) {
 					if ( !(i === r && j === c) &&
 						  (i >= 0 && i < height) &&
 					  	  (j >= 0 && j < width)) {
-						cell.neighbors.push(rows[i].cells[j]);
+						cell.get('neighbors').push(rows[i].cells[j]);
 					}
 				}
 			}
-
 		}
 	}
 	return rows;
-};
-
-var between = function(val, min, max) {
-	return val >= min && val <= max;
 };
