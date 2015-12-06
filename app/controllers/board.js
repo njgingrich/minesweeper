@@ -11,26 +11,50 @@ var MapRow = Ember.Object.extend({
 export default Ember.Controller.extend({
 	mapWidth: 10,
 	mapHeight: 10,
+	mineCount: 10,
+	isGameOver: false,
 
-	map: Ember.computed('mapWidth', 'mapHeight', function() {
+	map: Ember.computed('mapWidth', 'mapHeight', 'mineCount', function() {
 		var w = this.get('mapWidth');
 		var h = this.get('mapHeight');
-		return GameMap.create({rows: buildMapRows(w, h)});
+		return GameMap.create({rows: buildMapRows(w, h, this.get('mineCount'))});
 	}),
 
 	actions: {
 		check: function(cell) {
-			console.log(cell.neighbors);
+			// check if bomb
+			if (cell.get('hasBomb')) {
+				alert('You lose!');
+				this.set('map', GameMap.create({
+					rows: buildMapRows(this.get('mapWidth'), 
+							 		   this.get('mapHeight'),
+							 		   this.get('mineCount'))
+					})); 
+			}
+
+			// if not, check neighbors and update count
+			// update counts as needed, make other cells empty if need-be
+			cell.set('cleared', true);
+			updateCell(cell);	
+		},
+		reset: function() {
+			this.set('map', GameMap.create({
+				rows: buildMapRows(this.get('mapWidth'), 
+						 		   this.get('mapHeight'),
+						 		   this.get('mineCount'))
+				})); 
 		}
 	}
 });
 
-var buildMapRows = function(width, height) {
+var buildMapRows = function(width, height, mineCount) {
 	var rows = [];
 	for (let r = 0; r < height; r++) {
 		var cells = [];
 		for (let c = 0; c < width; c++) {
 			let cell = Cell.create({
+				hasBomb: false,
+				cleared: false,
 				neighbors: []
 			});
 			cells.push(cell);
@@ -39,6 +63,7 @@ var buildMapRows = function(width, height) {
 		rows.push(row);
 	}
 
+	placeMines(rows, width, height, mineCount);
 	return setNeighbors(rows, width, height);
 };
 
@@ -60,3 +85,41 @@ var setNeighbors = function(rows, width, height) {
 	}
 	return rows;
 };
+
+var placeMines = function(rows, width, height, mineCount) {
+	for (let i = 0; i < mineCount; i++) {
+		var row = getRandomInt(0, height);
+		var col = getRandomInt(0, width);
+
+		rows[row].cells[col].set('hasBomb', true);
+		rows[row].cells[col].set('text', 'B');
+	}
+};
+
+function getRandomInt(min, max) {
+	return Math.floor(Math.random() * (max - min)) + min;
+}
+
+function updateCell(cell) {
+	let neighbors = cell.get('neighbors');
+	let count = cell.get('count');
+
+	for (let i = 0; i < neighbors.length; i++) {
+		if (neighbors[i].get('hasBomb')) {
+			count++;
+		} else if (neighbors[i].get('count') === 0) {
+			neighbors[i].set('cleared', true);
+
+			console.log(neighbors[i]);
+			if (neighbors[i].get('cleared')) {
+				for (let j = 0; j < neighbors[i].length; j++) {
+					updateCell(neighbors[i]);
+				}
+			}
+		}
+	}
+}
+
+
+
+

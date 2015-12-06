@@ -1,10 +1,15 @@
+# Mines: {{input type="text" value=mineCount }}
+<button class="reset" {{action 'reset'}}>Reset</button>
+<br>
+<br>
 <table>
 	<tbody>
 		{{#each map.rows as |row|}}
 		<tr>
 			{{#each row.cells as |cell|}}
 				<td>
-					<button class="square unknown" {{action 'check' cell}}>
+					<button class="square" 
+						{{action 'check' cell}}>
 						{{cell.text}}
 					</button>
 				</td>
