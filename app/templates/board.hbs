@@ -1,4 +1,6 @@
-# Mines: {{input type="text" value=mineCount }}
+# Mines: {{input type="text" size=4 value=mineCount }}&nbsp;&nbsp;
+Grid: {{input type="text" size=4 value=mapHeight }} x 
+	  {{input type="text" size=4 value=mapWidth }}
 <button class="reset" {{action 'reset'}}>Reset</button>
 <br>
 <br>
@@ -9,6 +11,7 @@
 			{{#each row.cells as |cell|}}
 				<td>
 					<button class="square" 
+						disabled={{if cell.cleared "disabled"}} 
 						{{action 'check' cell}}>
 						{{cell.text}}
 					</button>

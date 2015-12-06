@@ -92,7 +92,6 @@ var placeMines = function(rows, width, height, mineCount) {
 		var col = getRandomInt(0, width);
 
 		rows[row].cells[col].set('hasBomb', true);
-		rows[row].cells[col].set('text', 'B');
 	}
 };
 
@@ -106,16 +105,11 @@ function updateCell(cell) {
 
 	for (let i = 0; i < neighbors.length; i++) {
 		if (neighbors[i].get('hasBomb')) {
-			count++;
-		} else if (neighbors[i].get('count') === 0) {
+			continue;
+		} else if ( !(neighbors[i].get('cleared')) &&
+			   		  cell.get('count') === 0) {
 			neighbors[i].set('cleared', true);
-
-			console.log(neighbors[i]);
-			if (neighbors[i].get('cleared')) {
-				for (let j = 0; j < neighbors[i].length; j++) {
-					updateCell(neighbors[i]);
-				}
-			}
+			updateCell(neighbors[i]);
 		}
 	}
 }

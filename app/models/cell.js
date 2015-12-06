@@ -15,7 +15,7 @@ export default Ember.Object.extend({
 		let count = 0;
 
 		for (let i = 0; i < this.get('neighbors').length; i++) {
-			if (neighbors[i].get('hasBomb')) {
+			if (this.get('neighbors')[i].get('hasBomb')) {
 				count++;
 			}
 		}
