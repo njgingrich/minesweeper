@@ -12,7 +12,25 @@ export default Ember.Controller.extend({
 	mapWidth: 10,
 	mapHeight: 10,
 	mineCount: 10,
-	isGameOver: false,
+	// there must be a better way
+	clearedSquares: Ember.computed('map.rows.cells', 'mapWidth', 'mapHeight', function() {
+		let cleared = 0;
+		for (let row = 0; row < this.get('mapHeight'); row++) {
+			for (let col = 0; col < this.get('mapWidth'); col++) {
+				console.log("map.rows[%d].cells[%d] = %b", row, col, this.get('map').rows[row].cells[col].get('cleared'));
+				if (this.get('map').rows[row].cells[col].get('cleared')) {
+					console.log("map rows[%d].cells[%d] is cleared", row, col);
+					cleared++;
+				}
+			}
+		}
+		return cleared;
+	}),
+	isGameOver: Ember.computed('clearedSquares', 'mapWidth', 'mapHeight', 'mineCount', function() {
+		let totalSquares = this.get('mapWidth') * this.get('mapHeight');
+		return ((totalSquares - this.get('clearedSquares')) === this.get('mineCount'));
+	}),
+	time: 0,
 
 	map: Ember.computed('mapWidth', 'mapHeight', 'mineCount', function() {
 		var w = this.get('mapWidth');
@@ -22,20 +40,26 @@ export default Ember.Controller.extend({
 
 	actions: {
 		check: function(cell) {
+			// check if won
+			if (this.get('isGameOver')) {
+				alert('You win!!!!!');
+			}
+			
 			// check if bomb
-			if (cell.get('hasBomb')) {
+			else if (cell.get('hasBomb')) {
 				alert('You lose!');
 				this.set('map', GameMap.create({
 					rows: buildMapRows(this.get('mapWidth'), 
 							 		   this.get('mapHeight'),
 							 		   this.get('mineCount'))
 					})); 
-			}
+			} else {
 
 			// if not, check neighbors and update count
 			// update counts as needed, make other cells empty if need-be
 			cell.set('cleared', true);
 			updateCell(cell);	
+			}
 		},
 		reset: function() {
 			this.set('map', GameMap.create({

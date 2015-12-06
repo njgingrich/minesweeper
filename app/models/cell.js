@@ -7,7 +7,7 @@ export default Ember.Object.extend({
 		if (this.get('cleared')) {
 			return this.get('count');	
 		} else {
-			return "?";
+			return "";
 		}
 	}),
 	neighbors: [],
