@@ -40,19 +40,23 @@ var buildMapRows = function(width, height) {
 	for (let r = 0; r < height; r++) {
 		for (let c = 0; c < width; c++) {
 			let cell = rows[r].cells[c];
+
+			// I hate myself
 			for (let i = r-1; i <= r+1; i++) {
-				for (let j = c-1; j <= c+1; i++) {
-					if (between(i, 0, height) && 
-						between(j, 0, width)) {
+				for (let j = c-1; j <= c+1; j++) {
+					if ( !(i === r && j === c) &&
+						  (i >= 0 && i < height) &&
+					  	  (j >= 0 && j < width)) {
 						cell.neighbors.push(rows[i].cells[j]);
 					}
 				}
 			}
+
 		}
 	}
 	return rows;
 };
 
 var between = function(val, min, max) {
-	return (val <= max && val >= min);
+	return val >= min && val <= max;
 };
