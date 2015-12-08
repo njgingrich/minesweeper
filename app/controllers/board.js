@@ -9,6 +9,15 @@ var MapRow = Ember.Object.extend({
 });
 
 export default Ember.Controller.extend({
+    init: function() {
+        this._super();
+        Ember.run.later(this, this.tick, 1000);
+    },
+    tick: function() {
+        this.incrementProperty('time');
+        Ember.run.later(this, this.tick, 1000);
+    },
+	time: 0,
 	mapWidth: 10,
 	mapHeight: 10,
 	mineCount: 10,
@@ -19,8 +28,6 @@ export default Ember.Controller.extend({
 
 		return ((width*height) - this.get('clearedSquares')) == this.get('mineCount');
 	}),
-	time: 0,
-
 	map: Ember.computed('mapWidth', 'mapHeight', 'mineCount', function() {
 		//var w = this.get('mapWidth');
 		//var h = this.get('mapHeight');
@@ -33,39 +40,38 @@ export default Ember.Controller.extend({
 			// check if bomb
 			if (cell.get('hasBomb')) {
 				alert('You lose!');
-				this.reset()
+				this.reset();
 			} else {
 
 			// if not, check neighbors and update count
 			// update counts as needed, make other cells empty if need-be
 			cell.set('cleared', true);
-			this.update(cell);	
+			this.update(cell);
 			}
 		},
 		reset: function() {
-			this.reset()
+			this.reset();
 		}
 	},
 	reset: function() {
-		this.set('clearedSquares', 0)
+		this.set('clearedSquares', 0);
 		var map = GameMap.create({
-			rows: buildMapRows(this.get('mapWidth'), 
+			rows: buildMapRows(this.get('mapWidth'),
 					 		   this.get('mapHeight'),
 					 		   this.get('mineCount'))
 			});
-	    this.set('map', map);	
+	    this.set('map', map);
 		return map;
 	},
 
 	update: function(cell) {
 		let neighbors = cell.get('neighbors');
-		let count = cell.get('count');
-		this.incrementProperty('clearedSquares')
+		this.incrementProperty('clearedSquares');
 		// check if won
 		if (this.get('isGameOver')) {
 			alert('You win!!!!!');
 		}
-		
+
 		for (let i = 0; i < neighbors.length; i++) {
 			if (neighbors[i].get('hasBomb')) {
 				continue;
@@ -75,7 +81,7 @@ export default Ember.Controller.extend({
 				this.update(neighbors[i]);
 			}
 		}
-	}		
+	}
 });
 
 var buildMapRows = function(width, height, mineCount) {
@@ -100,7 +106,7 @@ var buildMapRows = function(width, height, mineCount) {
 
 var setNeighbors = function(rows, width, height) {
 	for (let r = 0; r < height; r++) {
-		for (let c = 0; c < width; c++) { 
+		for (let c = 0; c < width; c++) {
 			let cell = rows[r].cells[c];
 			// I hate myself
 			for (let i = r-1; i <= r+1; i++) {
@@ -118,12 +124,16 @@ var setNeighbors = function(rows, width, height) {
 };
 
 var placeMines = function(rows, width, height, mineCount) {
-	for (let i = 0; i < mineCount; i++) {
-		var row = getRandomInt(0, height);
+    let i = 0;
+    while (i < mineCount) {
+        var row = getRandomInt(0, height);
 		var col = getRandomInt(0, width);
-
-		rows[row].cells[col].set('hasBomb', true);
-	}
+        if (rows[row].cells[col].get('hasBomb')) {
+            continue;
+        }
+        rows[row].cells[col].set('hasBomb', true);
+        i++;
+    }
 };
 
 function getRandomInt(min, max) {
